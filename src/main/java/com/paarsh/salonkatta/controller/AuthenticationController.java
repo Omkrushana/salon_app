@@ -1,6 +1,5 @@
 package com.paarsh.salonkatta.controller;
 
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,12 +14,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.paarsh.salonkatta.ResponseHandler.ApiResponse;
 import com.paarsh.salonkatta.dto.AuthenticationRequest;
 import com.paarsh.salonkatta.serviceImpl.JwtService;
 import com.paarsh.salonkatta.serviceImpl.UserDetailsServiceImpl;
-import com.paarsh.salonkatta.serviceImpl.JwtService;
-
-import com.paarsh.salonkatta.dto.AuthenticationRequest;
 import com.paarsh.salonkatta.dto.JwtResponse;
 import com.paarsh.salonkatta.dto.UserDto;
 import com.paarsh.salonkatta.model.Admin;
@@ -28,7 +25,6 @@ import com.paarsh.salonkatta.model.Customer;
 import com.paarsh.salonkatta.model.Role;
 import com.paarsh.salonkatta.model.User;
 import com.paarsh.salonkatta.model.Vendor;
-import com.paarsh.salonkatta.serviceImpl.JwtService;
 
 @RestController
 @Slf4j
@@ -77,17 +73,17 @@ public class AuthenticationController {
             case CUSTOMER:
                 Customer createdCustomer = userService.addUserInCustomer(user);
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body("Retailer created with id " + createdCustomer.getId() + " token is " + token);
+                        .body(new ApiResponse(true, 201, token));
 
             case VENDOR:
                 Vendor createdVendor = userService.addUserInVendor(user);
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body("Vendor created with id " + createdVendor.getId() + " token is " + token);
+                .body(new ApiResponse(true, 201, token));
             case ADMIN:
 
                 Admin createdAdmin = userService.addUserInAdmin(user);
                 return ResponseEntity.status(HttpStatus.CREATED)
-                        .body("Admin created with id " + createdAdmin.getId() + " token is " + token);
+                .body(new ApiResponse(true, 201, token));
             
 
             default:
@@ -104,25 +100,29 @@ public class AuthenticationController {
         }
     }
 
-    private boolean isSignupAllowed(Role requestedRole) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails currentUser = (UserDetails) authentication.getPrincipal();
-        String currentUserRole = userService.findByEmail(currentUser.getUsername()).get().getRole().name();
-        log.info("Currunt user role is " + currentUserRole);
-        return switch (currentUserRole) {
-            case "SUPERADMIN" ->
-                // SuperAdmin can sign up VENDOR,Admin,Customer 
-                requestedRole == Role.ADMIN || requestedRole == Role.CUSTOMER || requestedRole == Role.VENDOR ;
-            case "ADMIN" ->
-                // Admin can sign up vendor
-                requestedRole == Role.VENDOR;
-            case "VENDOR" ->
-                false;
-            case "CUSTOMER" ->
-                // Retailer can create a customer, but customers do not require signup in this
-                // flow
-                false;
-            default -> false;
-        };
-    }
+    // private boolean isSignupAllowed(Role requestedRole) {
+    // Authentication authentication =
+    // SecurityContextHolder.getContext().getAuthentication();
+    // UserDetails currentUser = (UserDetails) authentication.getPrincipal();
+    // String currentUserRole =
+    // userService.findByEmail(currentUser.getUsername()).get().getRole().name();
+    // log.info("Currunt user role is " + currentUserRole);
+    // return switch (currentUserRole) {
+    // case "SUPERADMIN" ->
+    // // SuperAdmin can sign up VENDOR,Admin,Customer
+    // requestedRole == Role.ADMIN || requestedRole == Role.CUSTOMER ||
+    // requestedRole == Role.VENDOR ;
+    // case "ADMIN" ->
+    // // Admin can sign up vendor
+    // requestedRole == Role.VENDOR;
+    // case "VENDOR" ->
+    // false;
+    // case "CUSTOMER" ->
+    // // Retailer can create a customer, but customers do not require signup in
+    // this
+    // // flow
+    // false;
+    // default -> false;
+    // };
+    // }
 }

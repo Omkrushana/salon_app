@@ -1,4 +1,4 @@
-package com.franchiseworld.jalad.ResponseHandler;
+package com.paarsh.salonkatta.ResponseHandler;
 
 public class ApiResponse {
     private boolean status;
